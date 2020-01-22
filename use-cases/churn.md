@@ -37,6 +37,12 @@
 9. How is that lift augmented after implemented users retention actions?
 10. What is the Probability Threshold? How was is set?
 
+## Churn monitoring
+1. What is happening right now? (define indicators, metrics to monitor churn status)
+2. What is the monitoring frequency that we should be employing?
+3. Use descriptive models (not good for trend analysis, but good for summarizing what happened)
+4. Compare/monitor different time periods (Beta distributions models are good enough)
+
 ## Adaptive churn analysis and prediction
 1. Reactive churn management
 2. Rigorous A/B testing 
