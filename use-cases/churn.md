@@ -27,7 +27,6 @@
    * classification methods
    * survival regression methods
    * latent probability models
-   
 2. How are you going to test these models for accuracy?
 3. How often should your models be refreshed? What could be automated?
 4. How long before new user behavior is reflected in predictions? Is there a distinction that should be taken into account from business stakeholders?
