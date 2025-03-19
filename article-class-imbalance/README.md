@@ -4,4 +4,4 @@ Class Imbalance is a common challenge in statistics and machine learning where t
 
 However, and since machine learning is application and experimentation driven, class imbalance should not be handled in a nomothetic manner.
 
-<a href="https://non-neutralzero.github.io/article-class-imbalance/" target="_blank">https://non-neutralzero.github.io/article-class-imbalance/</a>
+<a href="https://non-neutralzero.github.io/articles/article-class-imbalance/" target="_blank">https://non-neutralzero.github.io/articles/article-class-imbalance/</a>
