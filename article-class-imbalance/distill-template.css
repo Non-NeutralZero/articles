@@ -1,0 +1,284 @@
+  
+/*
+  Copyright 2018 The Distill Template Authors
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+
+  Modifications by NonNeutralZero (2024)
+
+  Licensed under the MIT License. See LICENSE file for details.
+  */
+
+/* Essential body and article styles */
+body d-title {
+  overflow-x: auto;
+}
+
+body d-article {
+  overflow: visible;
+}
+
+d-title h1, d-title p, d-title figure {
+  grid-column: page;
+}
+
+/* Basic text styles */
+b {
+  font-weight: bold;
+}
+
+/* Interactive elements */
+label, button {
+  cursor: pointer;
+}
+
+button {
+  border-radius: 0.25em;
+}
+
+/* Table of contents styles */
+@media (max-width: 1000px) {
+  d-contents {
+    justify-self: start;
+    align-self: start;
+    grid-column-start: 2;
+    grid-column-end: 6;
+    padding-bottom: 0.5em;
+    margin-bottom: 1em;
+    padding-left: 0.25em;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  }
+}
+
+@media (min-width: 1000px) {
+  d-contents {
+    align-self: start;
+    grid-column-start: 1;
+    grid-column-end: 4;
+    justify-self: end;
+    padding-right: 3em;
+    padding-left: 2em;
+    border-right: 1px solid rgba(0, 0, 0, 0.1);
+  }
+}
+
+@media (min-width: 1180px) {
+  d-contents {
+    grid-column-start: 1;
+    grid-column-end: 4;
+    justify-self: end;
+    padding-right: 3em;
+    padding-left: 2em;
+    border-right: 1px solid rgba(0, 0, 0, 0.1);
+  }
+}
+
+/* Table of contents navigation styles */
+d-contents nav h3 {
+  margin-top: 0;
+  margin-bottom: 1em;
+}
+
+d-contents nav a {
+  color: rgba(0, 0, 0, 0.8);
+  border-bottom: none;
+  text-decoration: none;
+}
+
+d-contents li {
+  list-style-type: none;
+}
+
+d-contents ul {
+  padding-left: 1em;
+}
+
+d-contents nav ul li {
+  margin-bottom: 0.25em;
+}
+
+d-contents nav a:hover {
+  text-decoration: underline solid rgba(0, 0, 0, 0.6);
+}
+
+d-contents nav ul {
+  margin-top: 0;
+  margin-bottom: 6px;
+}
+
+d-contents nav > div {
+  display: block;
+  outline: none;
+  margin-bottom: 0.5em;
+}
+
+d-contents nav > div > a {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+d-contents nav > div > a:hover, 
+d-contents nav > ul > li > a:hover {
+  text-decoration: none;
+}
+
+/* Header styles */
+distill-header {
+  position: relative;
+  height: 60px;
+  background-color: white;
+  width: 100%;
+  box-sizing: border-box;
+  z-index: 2;
+  color: rgba(0, 0, 0, 0.8);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.05);
+}
+
+distill-header .content {
+  height: 70px;
+  grid-column: page;
+}
+
+distill-header a {
+  font-size: 16px;
+  height: 60px;
+  line-height: 60px;
+  text-decoration: none;
+  color: rgba(0, 0, 0, 0.8);
+  padding: 22px 0;
+}
+
+distill-header a:hover {
+  color: rgba(0, 0, 0, 1);
+}
+
+@media(min-width: 1080px) {
+  distill-header {
+    height: 70px;
+  }
+  distill-header a {
+    height: 70px;
+    line-height: 70px;
+    padding: 28px 0;
+  }
+}
+
+distill-header .logo {
+  font-size: 17px;
+  font-weight: 200;
+}
+
+distill-header .nav {
+  float: right;
+  font-weight: 300;
+}
+
+distill-header .nav a {
+  font-size: 12px;
+  margin-left: 24px;
+  text-transform: uppercase;
+}
+
+/* Appendix styles */
+d-appendix {
+  contain: layout style;
+  font-size: 0.8em;
+  line-height: 1.7em;
+  margin-top: 60px;
+  margin-bottom: 0;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  color: rgba(0,0,0,0.5);
+  padding-top: 60px;
+  padding-bottom: 48px;
+}
+
+d-appendix h3 {
+  grid-column: page-start / text-start;
+  font-size: 15px;
+  font-weight: 500;
+  margin-top: 1em;
+  margin-bottom: 0;
+  color: rgba(0,0,0,0.65);
+}
+
+d-appendix h3 + * {
+  margin-top: 1em;
+}
+
+d-appendix ol {
+  padding: 0 0 0 15px;
+}
+
+@media (min-width: 768px) {
+  d-appendix ol {
+    padding: 0 0 0 30px;
+    margin-left: -30px;
+  }
+}
+
+d-appendix li {
+  margin-bottom: 1em;
+}
+
+d-appendix a {
+  color: rgba(0, 0, 0, 0.6);
+}
+
+d-appendix > * {
+  grid-column: text;
+}
+
+d-appendix > d-footnote-list,
+d-appendix > d-citation-list,
+d-appendix > distill-appendix {
+  grid-column: screen;
+}
+
+/* Citation list styles */
+d-citation-list {
+  contain: style;
+}
+
+d-citation-list .references {
+  grid-column: text;
+}
+
+d-citation-list .references .title {
+  font-weight: 500;
+}
+
+/* Distill appendix styles */
+distill-appendix {
+  contain: layout style;
+}
+
+distill-appendix .citation {
+  font-size: 11px;
+  line-height: 15px;
+  border-left: 1px solid rgba(0, 0, 0, 0.1);
+  padding-left: 18px;
+  border: 1px solid rgba(0,0,0,0.1);
+  background: rgba(0, 0, 0, 0.02);
+  padding: 10px 18px;
+  border-radius: 3px;
+  color: rgba(150, 150, 150, 1);
+  overflow: hidden;
+  margin-top: -12px;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+distill-appendix > * {
+  grid-column: text;
+}

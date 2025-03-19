@@ -1,0 +1,426 @@
+<!doctype html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=1200">
+  
+  <!-- Load Distill template first -->
+  <script src="https://distill.pub/template.v2.js"></script>
+  
+  <!-- Load CSS -->
+  <link rel="stylesheet" href="distill-template.css">
+
+  <!-- Favicon -->
+   <link rel="icon" href="assets/images/favicon/icons8-zero-outline-hand-drawn-16.png" type="image/png">
+
+  <!-- Google tag (gtag.js) -->
+   <script async src="https://www.googletagmanager.com/gtag/js?id=G-2ZMSNQRC0R"></script>
+    <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-2ZMSNQRC0R', { 'anonymize_ip': false });
+    </script>
+
+  <!-- Mathjax -->
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
+  </script>
+  <!-- End Mathjax -->
+</head>
+
+<body>
+    <distill-header distill-prerendered="">
+    <div class="content">
+        <a href="https://www.nonneutralzero.com/" class="logo">
+          <img src="assets/images/favicon/icons8-zero-outline-hand-drawn-32.png" alt="NNZLogo" class="logo-img">
+        </a>
+        <nav class="nav">
+          <a href="https://www.nonneutralzero.com/">Home</a>
+          <a href="https://www.nonneutralzero.com/works/">Works</a>
+          <a href="https://github.com/Non-NeutralZero">GitHub</a>  
+        </nav>
+      </div>
+    </distill-header>
+  
+    <d-title>
+      <h1>Class Imbalance</h1>
+      <figure style="grid-column: page; margin: 1rem 0;">
+          <img src="assets/images/banner/christophe-hautier-unsplash.png" style="width:100%; border: 1px solid rgba(0, 0, 0, 0.2);">
+      </figure>
+    </d-title>
+
+    <d-byline>
+        <div class="byline grid">
+          <div>
+            <h3>Author</h3>
+            <a class="name" href="https://www.nonneutralzero.com/">NonNeutralZero</a>
+          </div>
+          <div>
+            <h3>Published</h3>
+              <p>Dec. 31, 2023</p> 
+          </div>
+        </div>
+    </d-byline>
+    
+    <d-article>
+    
+        <div>
+          <p id="introduction">
+            Class Imbalance is a common challenge in statistics and machine learning where the distribution of the target variable is skewed, resulting in several issues such as bias towards the majority class or over-fitting.
+          </p>
+          <p>However, and since machine learning is application and experimentation driven, class imbalance should not be handled in a nomothetic manner.</p>
+        </div>
+    
+        <h2 id="whatisclassimbalance">What is class imbalance ?</h2>
+        <p>
+            In classification tasks, class imbalance refers to the Target variable's, also know as Class, skewed distribution. In other words, for binary classification for example, the proportion of the positive class is much lower than that of the negative class. How much lower ? Well, from my understanding, there isn't a consensus on the degree of imbalance, expect for extreme degree cases (where the consensus is at 1% or less).
+        </p>
+        <p>
+            Nevertheless, we can adopt Google's categorization of the degree of imbalance:
+        </p>
+        <figure>
+            <table>
+                <thead>
+                  <tr>
+                    <th>Degree of imbalance</th>
+                    <th>Proportion of Minority Class</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Mild</td>
+                    <td>20-40% of the data set</td>
+                
+                  </tr>
+                  <tr>
+                    <td>Mild</td>
+                    <td>1-20% of the data set</td>
+                  </tr>
+                  <tr>
+                    <td>Extreme</td>
+                    <td>Less than 1% of the data set</td>
+                  </tr>
+                </tbody>
+            </table>
+    
+            <figcaption>Fig. 1. Degree of imbalance based on the minority class proportion 
+                (Source: Google - ML Foundational courses 2023-06-09)</figcaption>
+        </figure>
+    
+        <h2 id="whyisclassimbalanceaproblem">Why is it a problem ?</h2>
+        <p>
+            After machine learning transitioned "from the status of academic discipline to that of applied science [emphasis added] a myriad of new issues, not previously considered by the machine learning community, [came] into light. One such issue is the class imbalance problem" (Japkowicz & Stephen, 2002)
+        </p>
+        <p>
+            Basically, when confronted with imbalanced data, many algorithms don't perform well. This could be due to several problems. In the following sections we'll discuss the most prominent ones :
+        </p>
+        <ul>
+            <li>
+                The algorithm has an encoded assumption that the classes share similar probabilities.
+            </li>
+            <li>The algorithm has a hard time learning the patterns associated with the minority class, which in many applications, is the class of interest.
+            </li>            
+            <li>The algorithm is minimizing the overall error (hence its focus on the majority class).
+            </li>            
+        </ul>
+        <p>
+            Let's dig a bit deeper to unlock each area separately; i.e. algorithms, data, and evaluation.
+        </p>
+    
+        <h2>The Algorithms</h2>
+        <p>
+            Several machine learning models are sensitive to imbalanced data. That is mainly because they were not mathematically designed to deal with this specific problem. If we take logistic regression as an example, the cost function we are optimizing in the case of a binary classification problem is
+        </p>
+        <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+            <mi>J</mi>
+            <mo stretchy="false">(</mo>
+            <mi>w</mi>
+            <mo stretchy="false">)</mo>
+            <mo>=</mo>
+            <munderover>
+              <mo>&#x2211;</mo>
+              <mrow class="MJX-TeXAtom-ORD">
+                <mi>i</mi>
+                <mo>=</mo>
+                <mn>1</mn>
+              </mrow>
+              <mrow class="MJX-TeXAtom-ORD">
+                <mi>m</mi>
+              </mrow>
+            </munderover>
+            <msup>
+              <mi>y</mi>
+              <mrow class="MJX-TeXAtom-ORD">
+                <mo stretchy="false">(</mo>
+                <mi>i</mi>
+                <mo stretchy="false">)</mo>
+              </mrow>
+            </msup>
+            <mi>log</mi>
+            <mo>&#x2061;</mo>
+            <mi>P</mi>
+            <mo stretchy="false">(</mo>
+            <mi>y</mi>
+            <mo>=</mo>
+            <mn>1</mn>
+            <mo stretchy="false">)</mo>
+            <mo>+</mo>
+            <mo stretchy="false">(</mo>
+            <mn>1</mn>
+            <mo>&#x2212;</mo>
+            <msup>
+              <mi>y</mi>
+              <mrow class="MJX-TeXAtom-ORD">
+                <mo stretchy="false">(</mo>
+                <mi>i</mi>
+                <mo stretchy="false">)</mo>
+              </mrow>
+            </msup>
+            <mo stretchy="false">)</mo>
+            <mi>log</mi>
+            <mo>&#x2061;</mo>
+            <mi>P</mi>
+            <mo stretchy="false">(</mo>
+            <mi>y</mi>
+            <mo>=</mo>
+            <mn>0</mn>
+            <mo stretchy="false">)</mo>
+          </math>
+        <p>which treats both classes "equally".
+        </p>
+        <p>
+            I tried to illustrate this in a notebook that you can find here. The charts below have been extracted from the notebook and illustrate how the accuracy and precision change with train time on balanced versus imbalanced data.
+        </p>
+        <figure>
+            <table>
+                <tbody>
+                        <td style="width: 50%;">
+                            <img src="visualizations/images/ionosphere_TrainTimeVsTestAcc.png">
+                        </td>
+                        <td style="width: 50%;">
+                            <img src="visualizations/images/ionosphere_TrainTimeVsPrecision.png">
+                        </td>  
+                </tbody>
+                        </table>
+                        <figcaption>Fig. 2. Behavior of logistic regression on balanced vs imbalaced data
+                            Ionosphere data
+                            (Source: NNZ@Github)</figcaption>
+            
+        </figure>
+        <p>
+            On both metrics, the algorithm performs better on balanced data. Still, its performance on imbalanced data is not too bad, given the mild degree of imbalance (and most likely the quality of data as well).
+        </p>
+        <p>
+            However, the problem can become more pronounced for "real datasets", because they're larger and exhibit more complexity. For the sake of example, I trained a logistic regression on a bank's customer dataset.
+        </p>
+        <p>
+            In contrast with the ionosphere data, the precision is very low and does not improve over train time on the imbalanced data.
+        </p>
+    
+        <figure>
+          <table>
+              <tbody>
+                  <tr>
+                      <td>
+                          <img src="visualizations/images/TrainTimevsTestAccuracy.png" alt="Train Time vs Test Accuracy">
+                      </td>
+                      <td>
+                          <img src="visualizations/images/TrainTimeVsPrecision.png" alt="Train Time vs Precision">
+                      </td>
+                  </tr>
+              </tbody>
+          </table>
+          <figcaption>Fig. 3. Behavior of logistic regression on balanced vs imbalaced HCDR data (Source: NNZ@Github)</figcaption>
+      </figure>
+    
+        <p>
+            With that being said, some classification algorithms incorporate techniques to handle class imbalance; By adjusting class weights, for example, or assigning different penalties to mis-classification errors on the different classes. 
+        </p>
+        <p>
+            The figure below shows how, for different class weights, the model's accuracy changes on  both train and test sets.
+        </p>
+        <figure>
+            <img src="visualizations/images/ionosphere_ClassWeights.png">
+            <figcaption>
+                Fig. 4. Accuracy scores of logistic regression on Train and Test sets 
+    using different class weights. Ionosphere data
+    (Source: NNZ@Github)
+            </figcaption>
+        </figure>
+        <p>
+            Note that the 1.79 weight in the second plot of Fig.4. represents the rounded proportion of negatives on positives; and the weights in the third plot of Fig.4. are inspired by the heuristic used by scikit-learn (link here). 
+        </p>
+        <p>
+            All in all, lots of work has been put in the area of cost sensitive learning (i.e. algorithms that are built to directly handle imbalanced data) and that of cost sensitive meta-learning.(i.e. methods that alter baseline insensitive algorithms into sensitive ones)
+        </p>
+        <p>
+            One cost sensitive meta-learning method that's "very simple, yet general and effective" (Sheng & Ling, 2006) is thresholding, whereby the practitioner "selects a proper threshold from training instances according to the misclassification cost" (Sheng & Ling, 2006)
+        </p>
+        <p>
+            In their paper, Sheng & Ling, demonstrate how this simple method can yield better results than other meta-learning approaches on different datasets.
+        </p>
+        <figure>
+            <img src="visualizations/images/sheng2006thresholding_fig4.png">
+            <figcaption>
+                Fig. 5. Comparison of Thresholding and other meta-learning approaches of 
+    total cost under cost ratios on different datasets
+    (Source: Sheng & Ling, 2006)
+            </figcaption>
+        </figure>
+        <p>
+            We can also look at the problem (i.e. classification) differently. That is, instead of looking to classify data into corresponding classes, we can treat the minority class as a discrepant event (anomaly, outlier, irregularity...etc.).
+        </p>
+        <p>
+            In this case, we can use another algorithmic approach: one-class classifiers.
+        </p>
+        <p>
+            One-class classifiers only have one class as a target. They learn to focus on patterns that discriminate "normal" instances from "abnormal" ones.
+        </p>
+        <p>
+            This approach however comes at the cost of discarding patterns associated with the majority class. In practice, and In order to avoid this, one can employ strategies such as stacking or voting to construct a final classifier that would incorporate the outcome of multiple classifiers specializing in different inference tasks.
+        </p>
+        <p>
+            In summary, there exists different algorithmic approaches to dealing with class imbalance depending on what data we're confronted with (more on this in the data section) and what our problem frame consists of (i.e. business objectives, problem scope,..etc.) :
+        </p>
+        <ul>
+            <li>
+                Cost sensitive learning
+            </li>
+            <li>
+                Thresholding and decision boundary shifting
+            </li>
+            <li>
+                One-class classification
+            </li>
+            <li>
+                Semi-supervised learning
+            </li>
+        </ul>
+        <h2>The Data</h2>
+        <p>
+            To mitigate the imbalance challenge, one must look at the problem's data. There are several methods that are typically used to work with the data.
+        </p>
+        <ul>
+            <li><b>Feature Engineering:</b> Identifying, developing and processing discriminating features can play an essential role in capturing the minority class patterns.</li>
+            <li>
+                <b>Data Augmentation:</b> Generating new training data by transforming the existing data.
+            </li>
+            <li><b>Resampling Methods:</b> Oversampling the minority class by creating synthetic samples or undersampling the majority class by reducing the number of samples. 
+                Techniques like Random Oversampling, Synthetic Minority Oversampling Technique (SMOTE), or Tomek Links are commonly employed.</li>
+                <li><b>Data Generation:</b> Generating synthetic data for the minority class. 
+                    Techniques include Generative Adversarial Networks (GANs) and Variational Autoencoders</li>
+        </ul>
+        <p>
+            It is very important to understand how an algorithm works in order to engineer better representations. This is not an easy task indeed, especially in the case of deep neural networks.
+        </p>
+        <p>Working with data in general can also become more challenging in the case of large datasets (and thus, large feature vectors) especially when a model exhibits low performance on the imbalanced dataset.</p>
+        <p>It is also very important to note that, technically, class imbalance is not always the problem. In fact, one can imagine that a dataset with a clear decision boundary can indeed be classified no matter the degree of class imbalance or skewness. However, when the data is overlapping, an algorithm will find it harder to learn from the data in order to separate between classes even if the data is balanced.</p>
+        <p>This specific problem is referred to as <b>class overlap</b>. 
+        </p>
+        <p>Another problem that may occur is when classes encompass different small representations. If we think of this in terms of clustering, we can look at the original classes as macro-clusters containing different micro-clusters. </p>
+        <p>In this article, we referred to class imbalance and class distribution skewness with the same taxonomy. However, Das et al. (2018), use this taxonomy differently and categorize different distribution-based data irregularities into 3 categories: </p>
+        <ul>
+            <li><b>class imbalance:</b> target variable skewed distribution. i.e. unequal representation of the target variable's classes.</li>
+            <li>
+                <b>small disjuncts:</b> one the classes encompasses different small representations.
+            </li>
+            <li><b>class distribution skewness:</b> the classes have different conditional distributions. (not to be confused with target variable skewed distribution)</li>
+        </ul>
+        <figure>
+            <img src="visualizations/images/data-irregularities.png">
+            <figcaption>Fig. 6. Illustration of distribution based data irregularities. 
+                (Source: Das et al., 2018)</figcaption>
+        </figure>
+        <p>
+            As discussed above, a dataset can present different problems, and so it is important to ascertain the specific problem (or problems) the data at hand is presenting in order to find efficient solutions (i.e. making assumptions, developing hypotheses, and taking manageable risks during the training phase.).
+        </p>
+        <p>Below is an attempt to summarize some of the most frequent data problems that might take place when confronted with a classification problem.</p>
+        <figure>
+            <img src="visualizations/images/taxonomydataproblems.jpg">
+            <figcaption>Fig. 7. A taxonomy of data related problems for classification tasks</figcaption>
+        </figure>
+    
+        <h2>The Evaluation</h2>
+        <p>Rather than relying on accuracy, other evaluation metrics can be more informative on the performance of the model and/or potential adjustments that might help tweak it for improvement. 
+        </p>
+        <p>
+            One of the best diagrams that summarizes some of these metrics is the one below:
+        </p>
+        <figure>
+            <img src="visualizations/images/evaluationmetrics_wikipedia.png">
+            <figcaption>Fig. 8. Diagnostic testing diagram 
+                (Source: Wikipedia - last edited on 30 November 2023, at 21:16 (UTC) - <a href="https://en.wikipedia.org/wiki/Template:Diagnostic_testing_diagram" target="_blank">Link</a>)</figcaption>
+        </figure>
+        <p>    The reason I use this diagram regularly is because visually it can give an idea about which metrics will be sensitive to class distribution. 
+        </p>
+        <p>Let's take accuracy as an example. The fact that this metric uses a sum of TP (true positives) + TN  (true negatives) over P (actual positives) + N (actual negatives) shows that if one class proportion (P or N) increases or decreases, the accuracy will be affected even if the algorithm's performance remains the same.  
+        </p>
+        <p>Hence, choosing an adequate combination of evaluation metrics, is crucial to provide better insights on experiments and guide the practitioner's hypothesis construction, testing and conclusion or decision inference.
+        </p>
+        <p>On his blog "machine learning mastery", Jason Brownlee suggests a simple guide to choosing the right metric given different data scenarios. It's a great starting point - I would however use it carefully during practice and not hurriedly rely on it to choose an evaluation metric.
+        </p>
+    
+    </d-article>
+
+    <d-appendix id="appendix">
+        <h3>Acknowledgments</h3>
+    <p>
+    Article template by <a href="https://distill.pub" target="_blank">distill.pub</a>
+    </p>
+    
+    
+    <d-citation-list distill-prerendered="true">
+        <style>
+    d-citation-list {
+      contain: style;
+    }
+    
+    d-citation-list .references {
+      grid-column: text;
+    }
+    
+    d-citation-list .references .title {
+      font-weight: 500;
+    }
+    </style><h3 id="references">Sources & References</h3>
+        <ol id="references-list" class="references">
+            <li id="GoogleMLfoundationalcourses"><span class="title">Machine Learnin Foundational courses</span> 
+            <a href="https://developers.google.com/machine-learning/data-prep/construct/sampling-splitting/imbalanced-data" 
+            style="text-decoration:inherit;">[link]</a></li>
+
+            <li>
+                Nathalie Japkowicz and Shaju Stephen. The class imbalance problem: A systematic study. Intelligent data analysis, 6(5):429–449, 2002.
+            </li>
+            <li>
+                Claude Sammut and Geoffrey I Webb. Encyclopedia of machine learning and data mining. Springer Publishing company, Incorporated, 2017.
+            </li>
+            <li>Victor S Sheng and Charles X Ling. Thresholding for making classifiers cost-sensitive. In Aaai, volume 6, pages 476–481, 2006. </li>
+            <li> Gary King and Langche Zeng. Logistic regression in rare events data. Po-litical analysis, 9(2):137–163, 2001.</li>
+            <li>Swagatam Das, Shounak Datta, and Bidyut B Chaudhuri. Handling data irregularities in classification: Foundations, trends, and future challenges. Pattern Recognition, 81:674–693, 2018.</li>
+            <li>Jason Brownlee. Tour of evaluation metrics for imbalanced classification, 2021. <a href="https://machinelearningmastery.com/tour-of-evaluation-metrics-for-imbalanced-classification/">[link]</a> Last accessed 31 December 2023.</li>
+            
+        </ol>
+    </d-citation-list>
+    
+    <distill-appendix>
+        <h3 id="updates-and-corrections">Updates and Corrections</h3>
+        <p>
+        If you see mistakes or want to suggest changes, please <a href="https://github.com/Non-NeutralZero/article-class-imbalance/discussions" target="_blank">create a discussion entry on GitHub</a>. </p>
+        
+        <h3 id="citation">Citation</h3>
+        <p>Please cite this work as</p>
+        <pre class="citation short">NNZ. (Dec 2023). Class Imbalance. NonNeutralZero.https://non-neutralzero.github.io/article-class-imbalance/.</pre>
+        <p>BibTeX citation</p>
+        <pre class="citation long">@article{nnz2023classimb, 
+            title   = "Class Imbalance",
+            author  = "NNZ",
+            journal = "nonneutralzero.com",
+            year    = "2023",
+            month   = "Dec",
+            url     = "https://non-neutralzero.github.io/article-class-imbalance/"
+           }</pre>
+    </distill-appendix>
+</d-appendix>
+    
+</body>
