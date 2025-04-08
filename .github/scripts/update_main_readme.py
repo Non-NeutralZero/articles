@@ -59,7 +59,7 @@ Articles and technical deep dives on machine learning and deep learning
         article_link = f"https://non-neutralzero.github.io/articles/{folder}/"
         github_link = f"https://github.com/Non-NeutralZero/articles/tree/main/{folder}"
         
-        content+= f"[Article]({article_link}) [Github]({github_link})\n"
+        content+= f"[Article]({article_link}) [Github]({github_link}) \n\n"
         
         if description:
             content+= f"{description}\n"
