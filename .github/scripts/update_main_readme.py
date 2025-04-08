@@ -45,7 +45,8 @@ def get_article_info(folder):
 
 def generate_readme_content(articles):
     """Generate the main README.md based on the articles"""
-    content = """# Articles
+    #content = """# Articles \n"""
+    content = """
 
 Articles and technical deep dives on machine learning and deep learning
 
