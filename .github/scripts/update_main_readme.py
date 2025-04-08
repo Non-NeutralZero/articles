@@ -55,7 +55,7 @@ Articles and technical deep dives on machine learning and deep learning
         title= article["title"]
         folder= article["folder"]
         description= article["description"]
-        content+= f"## {title}"
+        content+= f"## {title}\n"
         article_link = f"https://non-neutralzero.github.io/articles/{folder}/"
         github_link = f"https://github.com/Non-NeutralZero/articles/tree/main/{folder}"
         
