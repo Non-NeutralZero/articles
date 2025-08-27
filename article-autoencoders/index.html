@@ -1,0 +1,615 @@
+<!doctype html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=1200">
+  
+  <!-- Load Distill template first -->
+  <script src="https://distill.pub/template.v2.js"></script>
+  
+  <!-- Load CSS -->
+  <link rel="stylesheet" href="distill-template.css">
+
+  <!-- Favicon -->
+   <link rel="icon" href="assets/images/favicon/icons8-zero-outline-hand-drawn-16.png" type="image/png">
+
+  <!-- Google tag (gtag.js) -->
+   <script async src="https://www.googletagmanager.com/gtag/js?id=G-2ZMSNQRC0R"></script>
+    <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-2ZMSNQRC0R', { 'anonymize_ip': false });
+    </script>
+
+  <!-- Mathjax -->
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
+  </script>
+  <!-- End Mathjax -->
+</head>
+
+<body>
+    <distill-header distill-prerendered="">
+        <div class="content">
+            <a href="https://www.nonneutralzero.com/" class="logo">
+              <img src="assets/images/favicon/icons8-zero-outline-hand-drawn-32.png" alt="NNZLogo" class="logo-img">
+            </a>
+            <nav class="nav">
+              <a href="https://www.nonneutralzero.com/">Home</a>
+              <a href="https://www.nonneutralzero.com/works/">Works</a>
+              <a href="https://github.com/Non-NeutralZero">GitHub</a>  
+            </nav>
+          </div>
+    </distill-header>
+
+    <d-title>
+        <h1>Dimensionality Reduction Through Autoencoders</h1>
+        <p>
+            Neural networks that can learn to compress input data into a lower-dimensional representation while preserving the most important patterns and relationships.
+        </p>
+    </d-title>
+        
+    <d-byline>
+        <div class="byline grid">
+          <div>
+            <h3>Author</h3>
+            <a class="name" href="https://www.nonneutralzero.com/">NonNeutralZero</a>
+          </div>
+          <div>
+            <h3>Published</h3>
+              <p>Nov. 30, 2024</p> 
+          </div>
+        </div>
+    </d-byline>
+
+    <d-article>
+        <p>
+            While working on machine learning projects, we often encounter datasets with hundreds of features, each potentially carrying valuable information we can't simply discard.
+        </p>
+        <p>
+            The immediate approach, when facing a challenge like this, may be to throw all these features into a model and let it figure things out. However, this often leads to increased computational complexity, longer training times, or the dreaded curse of dimensionality.
+        </p>
+        <p>This is where dimensionality reduction techniques enter the picture. And one powerful dimensionality reduction technique is autoencoders - neural networks that learn to compress input data into a lower-dimensional representation while preserving the most important patterns and relationships.
+        </p>
+        <p>In this article, I'll talk about implementing autoencoders to tackle high-dimensional data. We'll explore how autoencoders can effectively compress several features into a more manageable representation while maintaining the essential information needed for downstream tasks.</p>
+
+        <ul>
+            <li>What is an autoencoder ?</li>
+            <li>The theoretical foundations of autoencoders</li>
+            <li>A practical implementation guide with code examples</li>
+            <li>Comparative analysis with other dimensionality reduction techniques</li>
+        </ul>
+        <h2>
+            What is an autoencoder ?
+        </h2>
+        <p>
+            At t its core, an autoencoder is a neural network designed to "copy" its input to its output. I am using copy in quotes because autoencoders are not an identity function and we don't want them to be an identity function, rather they try to learn an approximation to the identity function. While this copy behavior might sound trivial at first, there's an important constraint: the network must pass the input through a bottleneck, i.e. a layer with fewer neurons than the input dimensions. This constraint forces the network to learn a compressed representation of the data.
+        </p>
+            <p class="shaded-figure">
+                If we only need a compressed representation of the data, wouldn't the encoder be enough?
+                We'll talk about this in the engineering design section.
+            </p>
+
+        <h3>Architecture breakdown</h3>
+        <figure id="ae_schema" style="display: flex; flex-direction: column; align-items: center; margin: auto;">
+            <img src="visualizations/Autoencoder_schema.png" style="width: 50%; margin-bottom: 1em;">
+            <figcaption style="text-align: center;">
+                Autoencoder By Michela Massi - Own work, CC BY-SA 4.0, https://commons.wikimedia.org/w/index.php?curid=80177333
+            </figcaption>
+        </figure>
+        <p>An autoencoder consists of three main components:</p>
+        <ul>
+            <li>The encoder: transforms the high-dimensional input into a compressed representation</li>
+            <li>The bottleneck or code: stores the compressed representation (also called the latent space)</li>
+            <li>The decoder: attempts to reconstruct the original input from the compressed representation</li>
+        </ul>
+        <p>So if we annotate the encoder function with g, the decoder function with f, the autoencoder's output is x' which is decoded from the encoding of x, we can write the autoencoder as:</p>
+        <div style="display: flex; justify-content: center;">
+            <math xmlns="http://www.w3.org/1998/Math/MathML">
+                <msup>
+                  <mrow data-mjx-texclass="ORD">
+                    <mi mathvariant="bold">x</mi>
+                  </mrow>
+                  <mo data-mjx-alternate="1">&#x2032;</mo>
+                </msup>
+                <mo>=</mo>
+                <msub>
+                  <mi>f</mi>
+                  <mi>&#x3B8;</mi>
+                </msub>
+                <mo stretchy="false">(</mo>
+                <msub>
+                  <mi>g</mi>
+                  <mi>&#x3D5;</mi>
+                </msub>
+                <mo stretchy="false">(</mo>
+                <mrow data-mjx-texclass="ORD">
+                  <mi mathvariant="bold">x</mi>
+                </mrow>
+                <mo stretchy="false">)</mo>
+                <mo stretchy="false">)</mo>
+              </math>    
+        </div>
+        <p>An autoencoder leans by trying to minimize the difference between input and output. But since the input must pass through the bottleneck layer, the network is forced to learn which features are most important for reconstruction.</p>
+        <p>The learning process consists of defining a reconstruction evaluation function that takes the input x and the output x', to then optimize a loss function over the parameters of the functions we saw above.</p>
+        <div style="display: flex; justify-content: center;">
+            <math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+                <mrow>
+                    <mi mathvariant="italic">arg</mi>
+                    <munder>
+                        <mi mathvariant="italic">min</mi>
+                        <mrow>
+                            <mi>θ</mi>
+                            <mi>,</mi>
+                            <mi>ϕ</mi>
+                        </mrow>
+                    </munder>
+                    <mspace width="0.5em"></mspace>
+                    <mi>L</mi>
+                    <mrow>
+                        <mo stretchy="false" fence="true">(</mo>
+                        <mrow>
+                            <mrow>
+                                <mi>θ</mi>
+                                <mi>,</mi>
+                                <mi>ϕ</mi>
+                            </mrow>
+                        </mrow>
+                        <mo stretchy="false" fence="true">)</mo>
+                    </mrow>
+                </mrow>
+            </math>
+        </div>
+        <p>For example, if the reconstruction evaluation is L2, we can use an MSE loss:</p>
+        <div style="display: flex; justify-content: center;"><math display="block" xmlns="http://www.w3.org/1998/Math/MathML">
+ 
+            <mrow>
+             <mi>L</mi>
+             <mrow>
+              <mrow>
+               <mo stretchy="false" fence="true">(</mo>
+               <mrow>
+                <mrow>
+                 <mi>θ</mi>
+                 <mi>,</mi>
+                 <mi>ϕ</mi>
+                </mrow>
+               </mrow>
+               <mo stretchy="false" fence="true">)</mo>
+              </mrow>
+              <mo stretchy="false">=</mo>
+              <mfrac>
+               <mn>1</mn>
+               <mi>n</mi>
+              </mfrac>
+             </mrow>
+             <mrow>
+              <munderover>
+               <mo stretchy="false">∑</mo>
+               <mrow>
+                <mi>i</mi>
+                <mo stretchy="false">=</mo>
+                <mn>1</mn>
+               </mrow>
+               <mi>n</mi>
+              </munderover>
+              <msup>
+               <mrow>
+                <mo stretchy="false" fence="true">(</mo>
+                <mrow>
+                 <mrow>
+                  <mrow>
+                   <msup>
+                    <mi>x</mi>
+                    <mi>i</mi>
+                   </msup>
+                   <mo stretchy="false">−</mo>
+                   <msub>
+                    <mi>f</mi>
+                    <mi>θ</mi>
+                   </msub>
+                  </mrow>
+                  <mrow>
+                   <mo stretchy="false" fence="true">(</mo>
+                   <mrow>
+                    <mrow>
+                     <msub>
+                      <mi>g</mi>
+                      <mi>ϕ</mi>
+                     </msub>
+                     <mrow>
+                      <mo stretchy="false" fence="true">(</mo>
+                      <mrow>
+                       <msup>
+                        <mi>x</mi>
+                        <mi>i</mi>
+                       </msup>
+                      </mrow>
+                      <mo stretchy="false" fence="true">)</mo>
+                     </mrow>
+                    </mrow>
+                   </mrow>
+                   <mo stretchy="false" fence="true">)</mo>
+                  </mrow>
+                 </mrow>
+                </mrow>
+                <mo stretchy="false" fence="true">)</mo>
+               </mrow>
+               <mn>2</mn>
+              </msup>
+             </mrow>
+            </mrow>
+          </math>
+        </div>
+        
+        <h3>Engineering design</h3>
+        <p>For dimensionalily reduction, we technically only need the encoder, who's job is compressing the data into a lower dimension. But how do we know that the encoder did a good job? This is where the decoder comes into play. The decoder validates whether the encoding actually captures important information.</p>
+        <p>The elegance of the autoencoder's design is incorporating the decoder - which serves as a built-in validation mechanism during training.</p>
+        <p>Without the decoder:</p>
+        <ul>
+            <li>We wouldn't have a built-in way to verify if our encoded representation is good.</li>
+            <li>We'd lose the self-supervisory signal that guides the encoder to learn.</li>
+        </ul>
+        <p>This is the key essence - the decoder serves both as a training mechanism and an evaluation tool for the encoder's learned representations.</p>
+        <p>In practice, once training is complete, we discard the decoder when our sole goal is dimensionality reduction.</p>
+        
+        <h2>The theoretical foundations of autoencoders</h2>
+        <p>While the term autoencoder as applied in modern deep learning is relatively recent, its theoretical underpinnings draw from several older concepts and foundational ideas from the fields of information theory, unsupervised learning, dimensionality reduction and neural networks.</p>
+        <p>One of the theoretical frameworks for understanding autoencoders comes from information theory. Tishby's Information Bottleneck theory (Tishby, et al.,2000) provides an explanation of why this "self-encoding" approach works: they find an optimal balance between compression (reducing dimensionality) and preservation of relevant information.</p>
+        <p>In the mid-2000s, autoencoders were formalized as a specific type of unsupervised learning model for feature learning. They were used as a way to learn efficient, compact representations of input dara, typically by training the model to reconstruct the input as accurately as possible from a lower-dimensional representation i.e the bottleneck.</p>
+        <p>In 2006, Hinton and Salakhutdinov (Hinton & Salakhutdinov, 2006) demonstrated that deep autoencoders could perform dimensionality reduction more effectively than principal component analysis (PCA), particularly for complex, non-linear data; marking a significant step in the development of autoencoders for feature learning.</p>
+        <p>What also makes autoencoders awesome is their evolution from simple reconstruction tools to powerful representation learning mechanisms. As outlined in comprehensive reviews (refer for example to Bengio et al. 2013), autoencoders shifted from being viewed as just dimensionality reduction tools to becoming fundamental building blocks in representation learning and generative modeling.</p>
+        <p>This evolution led to several autoencoder variants:</p>
+        <ul>
+            <li>Denoising Autoencoders (Vincent et al., 2008)</li>
+            <li>Contractive Autoencoder (Rifai, et al, 2011)</li>
+            <li>Variational Autoencoders (Kingma & Welling, 2013)</li>
+            <li>k-Sparse Autoencoder (Makhzani & Frey, 2013)</li>
+            <li>Beta-VAE (Higgins et al., 2017)</li>
+            <li>TD-VAE (Gregor et al., 2019)</li>
+        </ul>
+
+        <h2>A practical guide to implementing deep autoencoders</h2>
+        <p>The autoencoder architecture provides remarkable flexibility. Depending on the problem at hand, one can design an effective autoencoder tailored to the specificities of their task.</p>
+        <p>Before taking a look at some key flexibilities that deep autoencoders can offer, let's demonstrate a practical implementation of an autoencoder.</p> 
+        <p>We'll recreate the architecture from Hinton and Salakhutdinov's influential 2006 paper. This implementation will serve as a concrete example of the concepts we've discussed and as a setting stone to some elements we'll be discussing in the following architecture variations sections.
+        </p>
+        <p>Hinton and Salakhutdinov's work demonstrated that deep autoencoders could perform dimensionality reduction more effectively than PCA. We'll use the MNIST dataset for our demonstration purposes.
+        </p>
+        <figure>
+            <div style="display: flex; justify-content: center;">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1300 385">
+                    <!-- Title -->
+                    <text x="600" y="40" text-anchor="middle" font-size="20">Autoencoder Architecture</text>
+                    
+                    <!-- Section labels -->
+                    <text x="400" y="80" text-anchor="middle" fill="#1976d2" font-size="16">Encoder</text>
+                    <text x="800" y="80" text-anchor="middle" fill="#1976d2" font-size="16">Decoder</text>
+                  
+                    <!-- Arrows -->
+                    <defs>
+                      <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                        <path d="M0,0 L8,3 L0,6" fill="#666"/>
+                      </marker>
+                    </defs>
+                  
+                    <!-- Layer connections -->
+                    <line x1="170" y1="200" x2="230" y2="200" stroke="#666" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+                    <line x1="310" y1="200" x2="370" y2="200" stroke="#666" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+                    <line x1="450" y1="200" x2="510" y2="200" stroke="#666" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+                    <line x1="570" y1="200" x2="630" y2="200" stroke="#666" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+                    <line x1="690" y1="200" x2="750" y2="200" stroke="#666" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+                    <line x1="810" y1="200" x2="870" y2="200" stroke="#666" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+                    <line x1="930" y1="200" x2="990" y2="200" stroke="#666" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+                    <line x1="1070" y1="200" x2="1130" y2="200" stroke="#666" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+                  
+                    <!-- Input -->
+                    <rect x="110" y="150" width="60" height="100" fill="#e3f2fd" stroke="#90caf9" stroke-width="1"/>
+                    <text x="140" y="185" text-anchor="middle" font-size="12">Input</text>
+                    <text x="140" y="205" text-anchor="middle" font-size="14">784</text>
+                  
+                    <!-- Encoder Hidden 1 -->
+                    <rect x="230" y="125" width="80" height="150" fill="#e3f2fd" stroke="#90caf9" stroke-width="1"/>
+                    <text x="270" y="205" text-anchor="middle" font-size="14">1000</text>
+                  
+                    <!-- Encoder Hidden 2 -->
+                    <rect x="370" y="150" width="80" height="100" fill="#e3f2fd" stroke="#90caf9" stroke-width="1"/>
+                    <text x="410" y="205" text-anchor="middle" font-size="14">500</text>
+                  
+                    <!-- Encoder Hidden 3 -->
+                    <rect x="510" y="160" width="60" height="80" fill="#e3f2fd" stroke="#90caf9" stroke-width="1"/>
+                    <text x="540" y="205" text-anchor="middle" font-size="14">250</text>
+                  
+                    <!-- Bottleneck -->
+                    <rect x="630" y="175" width="60" height="50" fill="#ffcdd2" stroke="#ef9a9a" stroke-width="1"/>
+                    <text x="660" y="190" text-anchor="middle" font-size="10">Bottleneck</text>
+                    <text x="660" y="205" text-anchor="middle" font-size="14">30</text>
+                  
+                    <!-- Decoder Hidden 1 -->
+                    <rect x="750" y="160" width="60" height="80" fill="#e3f2fd" stroke="#90caf9" stroke-width="1"/>
+                    <text x="780" y="205" text-anchor="middle" font-size="14">250</text>
+                  
+                    <!-- Decoder Hidden 2 -->
+                    <rect x="870" y="150" width="60" height="100" fill="#e3f2fd" stroke="#90caf9" stroke-width="1"/>
+                    <text x="900" y="205" text-anchor="middle" font-size="14">500</text>
+                  
+                    <!-- Decoder Hidden 3 -->
+                    <rect x="990" y="125" width="80" height="150" fill="#e3f2fd" stroke="#90caf9" stroke-width="1"/>
+                    <text x="1030" y="205" text-anchor="middle" font-size="14">1000</text>
+                  
+                    <!-- Output -->
+                    <rect x="1130" y="150" width="60" height="100" fill="#e3f2fd" stroke="#90caf9" stroke-width="1"/>
+                    <text x="1160" y="185" text-anchor="middle" font-size="12">Output</text>
+                    <text x="1160" y="205" text-anchor="middle" font-size="14">784</text>
+                                    
+                    <!-- Activation Info -->
+                    <text x="600" y="300" text-anchor="middle" font-size="14">Hidden Layers: ReLU | Output Layer: Sigmoid</text>
+                  
+                    <!-- Legend -->
+                    <g transform="translate(450,330)">
+                      <!-- Dense Layer Legend -->
+                      <rect x="0" y="0" width="20" height="20" fill="#e3f2fd" stroke="#90caf9" stroke-width="1"/>
+                      <text x="30" y="15" font-size="14">Dense Layer</text>
+                      
+                      <!-- Bottleneck Layer Legend -->
+                      <rect x="150" y="0" width="20" height="20" fill="#ffcdd2" stroke="#ef9a9a" stroke-width="1"/>
+                      <text x="180" y="15" font-size="14">Bottleneck</text>
+                    </g>
+                </svg>
+            </div>
+            <figcaption style="text-align: center;">
+              Hinton &amp; Salakhutdinov (2006) - Reducing the dimensionality of data with neural networks.<br />
+              <a href="https://github.com/Non-NeutralZero/MLExperimentalCodex/tree/main/experiments/2024_AutoencoderVsPCA" target="_blank">Implementation using pytorch</a>
+          </figcaption>
+        </figure>
+        <p>We maintained the overall structure (as shown in the above figure), however there some differences in this impelmentation:</p>
+        <ul>
+            <li><b>Activation Functions:</b> We used ReLUs for hidden layers and sigmoid only for the output layer.</li>
+            <li><b>Training:</b> The paper used a layer-wise pretraining strategy with Restricted Boltzmann Machines (RBMs), whereas we used end-to-end training with backpropagation.</li>
+            <li><b>Optimization:</b> We used Adam optimizer.</li>
+            <li><b>Loss:</b> We used Mean Squared Error (MSE) loss instead of Cross-entropy loss.</li>
+        </ul>
+        <p>We aimed to achieve similar compression quality, and indeed the reconstructed output seemed satisfactory.</p>
+        <figure>
+            <img src="visualizations/hae_reconstructions.png">
+            <figcaption style="text-align: center;">Output of our implementation of the Hinton and Salakhutdinov autoencoder.</figcaption>
+        </figure>
+        <p>When compared with PCA and Logistic PCA, the autoencoder yields better reconstruction outputs.</p>
+        <figure>
+            <img src="visualizations/pca_hae_reconstruction_comparison.png">
+            <figcaption style="text-align: center;">Comparison between PCA, Logistic PCA, and autoencoder reconstructions.</figcaption>
+        </figure>
+        <p>Now that we have an idea about an autoencoder's architecture, we can move to discussing some key variations its design offers.</p>
+        <h3>1. Autoencoders can have an asymmetric architecture</h3>
+        <p>The encoder and decoder don't have to be symmetrical in their layer sizes.  For example, the encoder could use [784→1000→500→250→30] while decoder could use [30→400→800→784]. 
+        <p>They can also have different layer depths (for example a deeper encoder vs a shallower decoder) and arrangements (for example: an encoder with concentrated capacity near input and decoder with concetrated capacity near output ).
+        </p>
+        <p>  This is useful when the encoding or/and decoding complexity differs.
+        </p>
+        <h3>2. Autoencoders can have mixed Encoder/Decoder architectures</h3>
+        <p>The encoder and the decoder can use different neural network architectures. For example, CNN encoder with dense decoder for image feature extraction. This is useful for leveraging specialized architectures for specific data types.</p>
+        <figure style="margin: 0; width: 100%;">
+          <div style="display: flex; justify-content: center; width: 100%;">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1050 320">
+                  <!-- Title -->
+                  <text x="500" y="15" text-anchor="middle" font-size="20">A CNN encoder with dense decoder architecture</text>
+                  
+                  <!-- Section labels -->
+                  <text x="300" y="70" text-anchor="middle" fill="#1976d2" font-size="16">CNN Encoder</text>
+                  <text x="900" y="70" text-anchor="middle" fill="#1976d2" font-size="16">Dense Decoder</text>
+                
+                  <!-- Arrows -->
+                  <defs>
+                    <marker id="arrowhead" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+                      <path d="M0,0 L10,4 L0,8" fill="#666"/>
+                    </marker>
+                  </defs>
+                
+                  <!-- Input 1x28x28 -->
+                  <g transform="translate(50,120)">
+                    <!-- Stack of feature maps -->
+                    <rect width="56" height="56" fill="#e3f2fd" stroke="#90caf9" stroke-width="1"/>
+                    <text x="28" y="-10" text-anchor="middle" font-size="12">Input</text>
+                    <text x="28" y="30" text-anchor="middle" font-size="11">1×28×28</text>
+                  </g>
+                
+                  <!-- Conv1 32x14x14 -->
+                  <g transform="translate(160,120)">
+                    <!-- Stack of feature maps -->
+                    <rect width="32" height="32" fill="#c8e6c9" stroke="#81c784" stroke-width="1"/>
+                    <rect width="32" height="32" fill="#c8e6c9" stroke="#81c784" stroke-width="1" transform="translate(4,4)"/>
+                    <rect width="32" height="32" fill="#c8e6c9" stroke="#81c784" stroke-width="1" transform="translate(8,8)"/>
+                    
+                    <text x="20" y="-10" text-anchor="middle" font-size="12">Conv1</text>
+                    <text x="20" y="50" text-anchor="middle" font-size="11">32×14×14</text>
+                    <text x="20" y="65" text-anchor="middle" font-size="10">stride=2</text>
+                  </g>
+                
+                  <!-- Conv2 64x7x7 -->
+                  <g transform="translate(270,120)">
+                    <!-- Stack of feature maps -->
+                    <rect width="20" height="20" fill="#c8e6c9" stroke="#81c784" stroke-width="1"/>
+                    <rect width="20" height="20" fill="#c8e6c9" stroke="#81c784" stroke-width="1" transform="translate(4,4)"/>
+                    <rect width="20" height="20" fill="#c8e6c9" stroke="#81c784" stroke-width="1" transform="translate(8,8)"/>
+                    <rect width="20" height="20" fill="#c8e6c9" stroke="#81c784" stroke-width="1" transform="translate(12,12)"/>
+                    
+                    <text x="20" y="-10" text-anchor="middle" font-size="12">Conv2</text>
+                    <text x="20" y="50" text-anchor="middle" font-size="11">64×7×7</text>
+                    <text x="20" y="65" text-anchor="middle" font-size="10">stride=2</text>
+                  </g>
+                
+                  <!-- Conv3 128x7x7 -->
+                  <g transform="translate(380,120)">
+                    <!-- Stack of feature maps -->
+                    <rect width="20" height="20" fill="#c8e6c9" stroke="#81c784" stroke-width="1"/>
+                    <rect width="20" height="20" fill="#c8e6c9" stroke="#81c784" stroke-width="1" transform="translate(4,4)"/>
+                    <rect width="20" height="20" fill="#c8e6c9" stroke="#81c784" stroke-width="1" transform="translate(8,8)"/>
+                    <rect width="20" height="20" fill="#c8e6c9" stroke="#81c784" stroke-width="1" transform="translate(12,12)"/>
+                    <rect width="20" height="20" fill="#c8e6c9" stroke="#81c784" stroke-width="1" transform="translate(16,16)"/>
+                    
+                    <text x="25" y="-10" text-anchor="middle" font-size="12">Conv3</text>
+                    <text x="25" y="50" text-anchor="middle" font-size="11">128×7×7</text>
+                    <text x="25" y="65" text-anchor="middle" font-size="10">stride=1</text>
+                  </g>
+                
+                  <!-- Flatten/Dense transition -->
+                  <g transform="translate(490,120)">
+                    <rect width="60" height="40" fill="#fff3e0" stroke="#ffe0b2" stroke-width="1"/>
+                    <text x="30" y="-10" text-anchor="middle" font-size="12">Flatten</text>
+                    <text x="30" y="25" text-anchor="middle" font-size="11">6272</text>
+                  </g>
+                
+                  <!-- Dense 500 -->
+                  <g transform="translate(600,120)">
+                    <rect width="40" height="40" fill="#e3f2fd" stroke="#90caf9" stroke-width="1"/>
+                    <text x="20" y="-10" text-anchor="middle" font-size="12">Dense</text>
+                    <text x="20" y="25" text-anchor="middle" font-size="11">500</text>
+                  </g>
+                
+                  <!-- Bottleneck -->
+                  <g transform="translate(690,120)">
+                    <rect width="30" height="40" fill="#ffcdd2" stroke="#ef9a9a" stroke-width="1"/>
+                    <text x="15" y="-10" text-anchor="middle" font-size="12">Bottleneck</text>
+                    <text x="15" y="25" text-anchor="middle" font-size="11">30</text>
+                  </g>
+                
+                  <!-- Dense Decoder -->
+                  <g transform="translate(770,120)">
+                    <rect width="40" height="40" fill="#e3f2fd" stroke="#90caf9" stroke-width="1"/>
+                    <text x="20" y="-10" text-anchor="middle" font-size="12">Dense</text>
+                    <text x="20" y="25" text-anchor="middle" font-size="11">500</text>
+                  </g>
+                
+                  <!-- Dense Decoder 2 -->
+                  <g transform="translate(860,120)">
+                    <rect width="40" height="40" fill="#e3f2fd" stroke="#90caf9" stroke-width="1"/>
+                    <text x="20" y="-10" text-anchor="middle" font-size="12">Dense</text>
+                    <text x="20" y="25" text-anchor="middle" font-size="11">1000</text>
+                  </g>
+                
+                  <!-- Output -->
+                  <g transform="translate(950,120)">
+                    <rect width="56" height="56" fill="#e3f2fd" stroke="#90caf9" stroke-width="1"/>
+                    <text x="28" y="-10" text-anchor="middle" font-size="12">Output</text>
+                    <text x="28" y="30" text-anchor="middle" font-size="11">1×28×28</text>
+                  </g>
+                
+                  <!-- Connections -->
+                  <g stroke="#666" stroke-width="1" marker-end="url(#arrowhead)">
+                    <line x1="106" y1="148" x2="160" y2="148"/>
+                    <line x1="204" y1="148" x2="270" y2="148"/>
+                    <line x1="314" y1="148" x2="380" y2="148"/>
+                    <line x1="432" y1="148" x2="490" y2="148"/>
+                    <line x1="550" y1="148" x2="600" y2="148"/>
+                    <line x1="640" y1="148" x2="690" y2="148"/>
+                    <line x1="720" y1="148" x2="770" y2="148"/>
+                    <line x1="810" y1="148" x2="860" y2="148"/>
+                    <line x1="900" y1="148" x2="950" y2="148"/>
+                  </g>
+                
+                  <!-- Centered Legend -->
+                  <g transform="translate(320,250)">
+                    <!-- Convolutional -->
+                    <rect width="20" height="20" fill="#c8e6c9" stroke="#81c784" stroke-width="1"/>
+                    <text x="30" y="15" font-size="12">Convolutional Layer</text>
+                    
+                    <!-- Dense -->
+                    <rect x="160" width="20" height="20" fill="#e3f2fd" stroke="#90caf9" stroke-width="1"/>
+                    <text x="190" y="15" font-size="12">Dense Layer</text>
+                    
+                    <!-- Bottleneck -->
+                    <rect x="300" width="20" height="20" fill="#ffcdd2" stroke="#ef9a9a" stroke-width="1"/>
+                    <text x="330" y="15" font-size="12">Bottleneck</text>
+                  </g>
+                
+                  <!-- Layer information -->
+                  <text x="520" y="300" text-anchor="middle" font-size="12">
+                    Convolutional Layers: ReLU + BatchNorm | Dense Layers: ReLU | Output Layer: Sigmoid
+                  </text>
+                  
+                </svg>
+          </div>
+          <figcaption style="text-align: center;">A mixed encoder/decoder architecture autoencoder.</figcaption>
+      </figure>
+      <h3>3. We can also implement skip connections in autoencoders</h3>
+      <p>We can add residual connections between encoder and decoder layers. This involves directly passing outputs from the encoder layers to the decoder layers resulting in better gradient flow and reducing information loss.</p>  
+    
+    
+    </d-article>
+
+    <d-appendix id="appendix">
+        <h3>Acknowledgments</h3>
+        <p>
+        Article template by <a href="https://distill.pub" target="_blank">distill.pub</a>
+        </p>
+        
+        <d-citation-list distill-prerendered="true">
+            <h3>Sources & References</h3>
+            <ol id="references-list" class="references">
+                <li><span class="title">Representation learning: A review and new perspectives</span>
+                    <br>Yoshua Bengio, Aaron Courville, and Pascal Vincent. Representation learning: A review and new perspectives. IEEE Trans. Pattern Anal. Mach. Intell., 35 (8):1798–1828, August 2013. ISSN 0162-8828. doi: 10.1109/TPAMI.2013.50. URL https://doi.org/10.1109/TPAMI.2013.50. 
+                </li>
+                <li id="denoising-autoencoders"><span class="title">Denoising Autoencoders</span>  
+                    <br>Pascal Vincent, Hugo Larochelle, Yoshua Bengio, and Pierre-Antoine Manzagol. Extracting and composing robust features with denoising autoencoders. In Proceedings of the 25th International Conference on Machine Learning, ICML’08, page 1096–1103, New York, NY, USA, 2008. Association for Computing Machinery. ISBN 9781605582054. doi: 10.1145/1390156.1390294. URL https://doi.org/10.1145/1390156.1390294.
+                </li>
+                <li><span class="title">Contractive auto-encoders</span>
+                    <br>Salah Rifai, Pascal Vincent, Xavier Muller, Xavier Glorot, and Yoshua Bengio. Contractive auto-encoders: explicit invariance during feature extraction. In Proceedings of the 28th International Conference on International Conference on Machine Learning, ICML’11, page 833–840, Madison, WI, USA, 2011. Omnipress. ISBN 9781450306195.
+                </li>
+                <li><span class="title">Auto-encoding variational bayes</span>
+                    <br>Diederik P Kingma and Max Welling. Auto-encoding variational bayes, 2022. URL https://arxiv.org/abs/1312.6114.
+                </li>
+                <li><span class="title">k-sparse autoencoders</span>
+                    <br>Alireza Makhzani and Brendan Frey. k-sparse autoencoders, 2014. URL https://arxiv.org/abs/1312.5663.   
+                </li>
+                <li><span class="title">betaVAE</span>
+                    <br> Irina Higgins, Loic Matthey, Arka Pal, Christopher Burgess, Xavier Glorot, Matthew Botvinick, Shakir Mohamed, and Alexander Lerchner. betaVAE: Learning basic visual concepts with a constrained variational framework. In International Conference on Learning Representations, 2017. URL https://openreview.net/forum?id=Sy2fzU9gl.
+                </li>
+                <li><span class="title">Temporal difference variational auto-encoder</span>
+                    <br>DKarol Gregor, George Papamakarios, Frederic Besse, Lars Buesing, and Theophane Weber. Temporal difference variational auto-encoder, 2019. URL https://arxiv.org/abs/1806.03107.
+                </li>
+                <li><span class="title">Neural discrete representation learning</span>
+                    <br>Aaron van den Oord, Oriol Vinyals, and Koray Kavukcuoglu. Neural discrete representation learning, 2018. URL https://arxiv.org/abs/1711.00937.
+                </li>
+                <li><span class="title">Reducing the Dimensionality of Data with Neural Networks</span>
+                    <br>G. E. Hinton, R. R. Salakhutdinov ,Reducing the Dimensionality of Data with Neural Networks. Science313,504-507(2006).DOI:10.1126/science.1127647
+                </li>
+                <li><span class="title">Auto-encoding variational bayes</span>
+                    <br>Diederik P Kingma and Max Welling. Auto-encoding variational bayes, 2022. URL https://arxiv.org/abs/1312.6114.
+                </li>
+                <li><span class="title">Auto-encoding variational bayes</span>
+                    <br>Diederik P Kingma and Max Welling. Auto-encoding variational bayes, 2022. URL https://arxiv.org/abs/1312.6114.
+                </li>
+                <li><span class="title">Auto-encoding variational bayes</span>
+                    <br>Diederik P Kingma and Max Welling. Auto-encoding variational bayes, 2022. URL https://arxiv.org/abs/1312.6114.
+                </li>
+                <li><span class="title">Auto-encoding variational bayes</span>
+                    <br>Diederik P Kingma and Max Welling. Auto-encoding variational bayes, 2022. URL https://arxiv.org/abs/1312.6114.
+                </li>
+                
+            </ol>
+        </d-citation-list>
+
+        <distill-appendix>
+            <h3 id="updates-and-corrections">Updates and Corrections</h3>
+            <p>
+            If you see mistakes or want to suggest changes, please <a href="https://github.com/Non-NeutralZero/article/discussions" target="_blank">create a discussion entry on GitHub</a>. </p>
+            
+            <h3 id="citation">Citation</h3>
+            <p>Please cite this work as</p>
+            <pre class="citation short">NNZ. (Nov 2024). Dimensionality Reduction Through Autoencoders. NonNeutralZero.https://non-neutralzero.github.io/article-dimensionality-reduction-autoencoders/.</pre>
+            <p>BibTeX citation</p>
+            <pre class="citation long">@article{nnz2024dimredautoencoders, 
+                title   = "Dimensionality Reduction Through Autoencoders",
+                author  = "NNZ",
+                journal = "nonneutralzero.com",
+                year    = "2024",
+                month   = "Nov",
+                url     = "https://non-neutralzero.github.io/article-dimensionality-reduction-autoencoders"
+            }</pre>
+        </distill-appendix>
+    </d-appendix>
+    
+</body>
+        
+</body>
