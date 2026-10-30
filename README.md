@@ -2,10 +2,6 @@
 
 Articles and technical deep dives on machine learning and deep learning
 
-## Autoencoders
-[[Article]](https://non-neutralzero.github.io/articles/article-autoencoders/) [[Github]](https://github.com/Non-NeutralZero/articles/tree/main/article-autoencoders) 
-
-
 ## Class Imbalance
 [[Article]](https://non-neutralzero.github.io/articles/article-class-imbalance/) [[Github]](https://github.com/Non-NeutralZero/articles/tree/main/article-class-imbalance) 
 
